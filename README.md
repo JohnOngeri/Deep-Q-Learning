@@ -2,29 +2,32 @@
 
 This project implements a Deep Q-Network agent using Stable Baselines3 and Gymnasium to play Atari games.
 
-## 📋 Project Structure
+```bash
+Deep-Q-Learning/
+│
+├── .gitignore // Ignore cache, model, and temp files
+├── README.md // Project documentation and results
+├── package.json // (Optional) For npm-related configs if used
+├── play.py // Script to load and evaluate trained agent
+├── requirements.txt // Dependencies for Python environment
+├── train.py // Script to train the DQN agent
+│
+└── dqn_model.zip // (Will appear after training - saved model)
+```
 
-\`\`\`
-.
-├── train.py              # Training script for DQN agent
-├── play.py              # Evaluation script to watch trained agent
-├── models/              # Saved models directory
-│   ├── dqn_model.zip
-│   └── best_dqn_model.zip
-└── logs/                # Training logs and checkpoints
-\`\`\`
 
 ## 🚀 Installation
 
 Install the required dependencies:
 
-\`\`\`bash
+```bash
 pip install gymnasium[atari]
 pip install stable-baselines3[extra]
 pip install ale-py
 pip install tensorboard
 pip install matplotlib
-\`\`\`
+
+```
 
 For ROMs, you may need to install:
 \`\`\`bash
@@ -191,24 +194,99 @@ Training times and performance vary by game:
 - **Disadvantages**: Can't learn spatial relationships well
 - **Performance**: Poor on Atari (use CNN instead)
 
-## 📝 Hyperparameter Experiment Table
+## 📝 Hyperparameter Experiment Documentation
 
-| Hyperparameter Set | Noted Behavior |
-|-------------------|----------------|
-| lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.1 | Baseline configuration - stable learning |
-| lr=5e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.1 | Faster initial learning, some instability |
-| lr=1e-4, gamma=0.95, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.1 | More reactive to immediate rewards |
-| lr=1e-4, gamma=0.99, batch=64, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.1 | More stable gradients, slower convergence |
-| lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.05, epsilon_decay=0.2 | Better exploration, useful for complex games |
+**Instructions**: Each group member must conduct 10 experiments with different hyperparameter combinations. Document your observations below.
+
+---
+
+### 🧑‍💻 John Ouma - Experiments
+
+| Experiment # | Hyperparameter Set | Noted Behavior |
+|--------------|-------------------|----------------|
+| 1 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Baseline configuration - stable learning, moderate convergence speed |
+| 2 | lr=5e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Faster initial learning but increased instability in later stages |
+| 3 | lr=1e-5, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Very slow learning, more stable but requires longer training time |
+| 4 | lr=1e-4, gamma=0.95, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | More reactive to immediate rewards, shorter-term strategy |
+| 5 | lr=1e-4, gamma=0.999, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Strong focus on future rewards, slower initial progress |
+| 6 | lr=1e-4, gamma=0.99, batch=64, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | More stable gradients, smoother learning curve |
+| 7 | lr=1e-4, gamma=0.99, batch=128, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Very stable but slower updates, requires more memory |
+| 8 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.05, exploration_fraction=0.2 | Better exploration throughout training, good for complex environments |
+| 9 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.001, exploration_fraction=0.05 | Rapid exploitation, may get stuck in local optima |
+| 10 | lr=2e-4, gamma=0.98, batch=48, epsilon_start=1.0, epsilon_end=0.02, exploration_fraction=0.15 | Balanced approach with good exploration-exploitation tradeoff |
+
+---
+
+### 🧑‍💻 Jeremiah Agbaje - Experiments
+
+| Experiment # | Hyperparameter Set | Noted Behavior |
+|--------------|-------------------|----------------|
+| 1 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Baseline configuration for comparison |
+| 2 | lr=3e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Moderate speed increase with acceptable stability |
+| 3 | lr=1e-4, gamma=0.92, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Strong emphasis on immediate rewards, good for simple games |
+| 4 | lr=1e-4, gamma=0.99, batch=16, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Faster updates but noisier learning, more variance |
+| 5 | lr=1e-4, gamma=0.99, batch=96, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Smooth learning curve, computationally intensive |
+| 6 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.03, exploration_fraction=0.25 | Extended exploration phase, better for complex strategies |
+| 7 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=0.8, epsilon_end=0.01, exploration_fraction=0.1 | Less initial exploration, faster initial exploitation |
+| 8 | lr=5e-5, gamma=0.99, batch=64, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.15 | Very stable training, slow but consistent improvement |
+| 9 | lr=2e-4, gamma=0.96, batch=40, epsilon_start=1.0, epsilon_end=0.02, exploration_fraction=0.12 | Balanced configuration, good general performance |
+| 10 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.3 | Prolonged exploration, beneficial for discovering advanced strategies |
+
+---
+
+### 🧑‍💻 Tanguy Kwizera - Experiments
+
+| Experiment # | Hyperparameter Set | Noted Behavior |
+|--------------|-------------------|----------------|
+| 1 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Standard baseline for reference |
+| 2 | lr=7e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Fast learning initially but risk of divergence |
+| 3 | lr=1e-4, gamma=0.90, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Myopic behavior, focuses only on near-term rewards |
+| 4 | lr=1e-4, gamma=0.985, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Good balance between immediate and future rewards |
+| 5 | lr=1e-4, gamma=0.99, batch=24, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Small batch size leads to noisy but fast updates |
+| 6 | lr=1e-4, gamma=0.99, batch=80, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Large batch provides stability, slower iteration speed |
+| 7 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.08, exploration_fraction=0.1 | Higher final epsilon maintains some exploration |
+| 8 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.05 | Very quick transition to exploitation |
+| 9 | lr=1.5e-4, gamma=0.97, batch=56, epsilon_start=1.0, epsilon_end=0.015, exploration_fraction=0.18 | Custom balanced configuration with moderate values |
+| 10 | lr=8e-5, gamma=0.995, batch=72, epsilon_start=1.0, epsilon_end=0.02, exploration_fraction=0.2 | Conservative learning with long-term planning focus |
+
+---
+
+## 📊 Experiment Analysis Guidelines
+
+After completing your experiments, analyze:
+
+1. **Learning Rate Impact**: How did different learning rates affect convergence speed and stability?
+2. **Gamma Effects**: How did the discount factor influence the agent's strategy (short-term vs long-term)?
+3. **Batch Size Trade-offs**: What was the relationship between batch size, stability, and training speed?
+4. **Exploration Strategy**: How did epsilon decay parameters affect the agent's ability to discover optimal policies?
+5. **Best Configuration**: Which hyperparameter combination worked best for your chosen Atari game and why?
 
 ## 👥 Group Collaboration
 
 **Team Members**: John Ouma, Jeremiah Agbaje, Tanguy Kwizera
 
-### Individual Contributions
-- Document who worked on which parts
-- Track code contributions
-- Note any specific hyperparameter experiments each person ran
+### Individual Contribution Template
+
+**John Ouma**:
+- Responsibilities: [e.g., Initial setup, training script development, experiments 1-10]
+- Key Contributions: [Specific code sections, documentation, testing]
+- Experiments Conducted: 10 hyperparameter configurations documented above
+
+**Jeremiah Agbaje**:
+- Responsibilities: [e.g., Evaluation script, visualization, experiments 1-10]
+- Key Contributions: [Specific code sections, documentation, testing]
+- Experiments Conducted: 10 hyperparameter configurations documented above
+
+**Tanguy Kwizera**:
+- Responsibilities: [e.g., Documentation, analysis, experiments 1-10]
+- Key Contributions: [Specific code sections, documentation, testing]
+- Experiments Conducted: 10 hyperparameter configurations documented above
+
+### Collaboration Notes
+- **Meetings**: [Document meeting dates and discussions]
+- **Division of Work**: [How tasks were divided]
+- **Challenges**: [Any difficulties encountered and how they were resolved]
+- **Group Insights**: [Collective learnings from the project]
 
 ## 📚 Additional Resources
 
@@ -228,11 +306,12 @@ After completing this assignment, you should understand:
 
 ## ⚡ Quick Start
 
-1. **Install dependencies**
+1. **Install dependencies**: `pip install -r requirements.txt`
 2. **Run training**: `python train.py` (go get coffee ☕)
 3. **Watch agent play**: `python play.py`
 4. **View training graphs**: `tensorboard --logdir=./logs/`
 5. **Experiment with hyperparameters** in the CONFIG dictionary
-6. **Document your observations** in the hyperparameter table
+6. **Document your observations** in the hyperparameter table above
+7. **Complete all 10 experiments per team member** (30 total)
 
 Good luck with your DQN training! 🚀🎮
