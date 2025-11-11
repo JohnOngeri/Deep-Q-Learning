@@ -20,13 +20,14 @@ Deep-Q-Learning/
 
 Install the required dependencies:
 
-\`\`\`bash
+```bash
 pip install gymnasium[atari]
 pip install stable-baselines3[extra]
 pip install ale-py
 pip install tensorboard
 pip install matplotlib
-\`\`\`
+
+```
 
 For ROMs, you may need to install:
 \`\`\`bash
