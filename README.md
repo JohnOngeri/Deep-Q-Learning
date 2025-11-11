@@ -2,17 +2,16 @@
 
 This project implements a Deep Q-Network agent using Stable Baselines3 and Gymnasium to play Atari games.
 
-## 📋 Project Structure
-
-\`\`\`
-.
-├── train.py              # Training script for DQN agent
-├── play.py              # Evaluation script to watch trained agent
-├── models/              # Saved models directory
-│   ├── dqn_model.zip
-│   └── best_dqn_model.zip
-└── logs/                # Training logs and checkpoints
-\`\`\`
+Deep-Q-Learning/
+│
+├── .gitignore              # Ignore cache, model, and temp files
+├── README.md               # Project documentation and results
+├── package.json            # (Optional) For npm-related configs if used
+├── play.py                 # Script to load and evaluate trained agent
+├── requirements.txt        # Dependencies for Python environment
+├── train.py                # Script to train the DQN agent
+│
+└── dqn_model.zip           # (Will appear after training - saved model)
 
 ## 🚀 Installation
 
