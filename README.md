@@ -197,59 +197,79 @@ Training times and performance vary by game:
 ## 📝 Hyperparameter Experiment Documentation
 
 **Instructions**: Each group member must conduct 10 experiments with different hyperparameter combinations. Document your observations below.
+## 🎯 Experiment Design Summary
+
+Each group member conducted **10 independent Deep Q-Network (DQN) experiments** using the Atari `ALE/Breakout-v5` environment (with optional variations such as Pong and SpaceInvaders).  
+The objective was to systematically study how different hyperparameter combinations affect the performance, stability, and learning efficiency of the agent.
+
+Each experiment varied one or more of the following key hyperparameters:
+- **Learning Rate (lr):** Controls the step size for gradient updates.  
+- **Discount Factor (γ / gamma):** Determines how much future rewards influence current decisions.  
+- **Batch Size:** Affects training stability and computational efficiency.  
+- **Exploration Parameters (ε_start, ε_end, ε_decay):** Define the ε-greedy exploration schedule — how long the agent explores before exploiting learned behavior.
+
+Each team member explored a distinct range of configurations:
+- **John Ouma:** Focused on balancing learning rate and exploration strategies.
+- **Jeremiah Agbaje:** Investigated effects of varying gamma (reward discounting) and learning rates.
+- **Tanguy Kwizera:** Examined batch size effects and interaction between exploration and learning rate.
+
+All experiments automatically logged training results, episode rewards, and configurations into  
+📁 `experiments/experiment_results.csv` and corresponding `.json` files for analysis.
+
+---
+
 
 ---
 
 ### 🧑‍💻 John Ouma - Experiments
 
-| Experiment # | Hyperparameter Set | Noted Behavior |
-|--------------|-------------------|----------------|
-| 1 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Baseline configuration - stable learning, moderate convergence speed |
-| 2 | lr=5e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Faster initial learning but increased instability in later stages |
-| 3 | lr=1e-5, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Very slow learning, more stable but requires longer training time |
-| 4 | lr=1e-4, gamma=0.95, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | More reactive to immediate rewards, shorter-term strategy |
-| 5 | lr=1e-4, gamma=0.999, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Strong focus on future rewards, slower initial progress |
-| 6 | lr=1e-4, gamma=0.99, batch=64, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | More stable gradients, smoother learning curve |
-| 7 | lr=1e-4, gamma=0.99, batch=128, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Very stable but slower updates, requires more memory |
-| 8 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.05, exploration_fraction=0.2 | Better exploration throughout training, good for complex environments |
-| 9 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.001, exploration_fraction=0.05 | Rapid exploitation, may get stuck in local optima |
-| 10 | lr=2e-4, gamma=0.98, batch=48, epsilon_start=1.0, epsilon_end=0.02, exploration_fraction=0.15 | Balanced approach with good exploration-exploitation tradeoff |
+| Experiment # | Hyperparameter Set | Description |
+|--------------|-------------------|--------------|
+| 1 | lr=1e-4, γ=0.99, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Baseline configuration for DQN. |
+| 2 | lr=5e-4, γ=0.99, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Faster learning rate to test aggressive updates. |
+| 3 | lr=5e-5, γ=0.99, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Smaller learning rate for more stable learning. |
+| 4 | lr=1e-4, γ=0.995, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Higher discount factor for long-term focus. |
+| 5 | lr=1e-4, γ=0.95, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Lower discount factor to emphasize immediate rewards. |
+| 6 | lr=1e-4, γ=0.99, batch=64, ε_start=1.0, ε_end=0.01, decay=0.1 | Larger batch size for smoother gradient updates. |
+| 7 | lr=1e-4, γ=0.99, batch=16, ε_start=1.0, ε_end=0.01, decay=0.1 | Smaller batch size for faster updates but higher variance. |
+| 8 | lr=1e-4, γ=0.99, batch=32, ε_start=1.0, ε_end=0.05, decay=0.2 | Longer exploration period before exploiting. |
+| 9 | lr=1e-4, γ=0.99, batch=32, ε_start=1.0, ε_end=0.01, decay=0.05 | Faster shift from exploration to exploitation. |
+| 10 | lr=1e-3, γ=0.95, batch=64, ε_start=1.0, ε_end=0.01, decay=0.05 | High LR, low gamma, large batch, and rapid exploitation. |
 
 ---
 
 ### 🧑‍💻 Jeremiah Agbaje - Experiments
 
-| Experiment # | Hyperparameter Set | Noted Behavior |
-|--------------|-------------------|----------------|
-| 1 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Baseline configuration for comparison |
-| 2 | lr=3e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Moderate speed increase with acceptable stability |
-| 3 | lr=1e-4, gamma=0.92, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Strong emphasis on immediate rewards, good for simple games |
-| 4 | lr=1e-4, gamma=0.99, batch=16, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Faster updates but noisier learning, more variance |
-| 5 | lr=1e-4, gamma=0.99, batch=96, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Smooth learning curve, computationally intensive |
-| 6 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.03, exploration_fraction=0.25 | Extended exploration phase, better for complex strategies |
-| 7 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=0.8, epsilon_end=0.01, exploration_fraction=0.1 | Less initial exploration, faster initial exploitation |
-| 8 | lr=5e-5, gamma=0.99, batch=64, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.15 | Very stable training, slow but consistent improvement |
-| 9 | lr=2e-4, gamma=0.96, batch=40, epsilon_start=1.0, epsilon_end=0.02, exploration_fraction=0.12 | Balanced configuration, good general performance |
-| 10 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.3 | Prolonged exploration, beneficial for discovering advanced strategies |
+| Experiment # | Hyperparameter Set | Description |
+|--------------|-------------------|--------------|
+| 1 | lr=1e-4, γ=0.90, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Focus on short-term rewards (low discount). |
+| 2 | lr=1e-4, γ=0.999, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Focus on very long-term rewards (almost no discount). |
+| 3 | lr=1e-4, γ=0.97, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Balanced gamma between short and long term. |
+| 4 | lr=1e-5, γ=0.97, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Slower learning for more stability. |
+| 5 | lr=7e-4, γ=0.97, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Aggressive updates for faster convergence. |
+| 6 | lr=1e-4, γ=0.97, batch=32, ε_start=1.0, ε_end=0.1, decay=0.3 | Sustain exploration longer during training. |
+| 7 | lr=1e-4, γ=0.97, batch=32, ε_start=1.0, ε_end=0.01, decay=0.05 | Shift quickly from exploration to exploitation. |
+| 8 | lr=1e-4, γ=0.995, batch=16, ε_start=1.0, ε_end=0.01, decay=0.1 | Small batch with strong long-term focus. |
+| 9 | lr=1e-4, γ=0.92, batch=64, ε_start=1.0, ε_end=0.01, decay=0.1 | Large batch, focuses on shorter horizons. |
+| 10 | lr=3e-4, γ=0.98, batch=32, ε_start=1.0, ε_end=0.02, decay=0.15 | Balanced mix of all parameters for control comparison. |
 
 ---
 
 ### 🧑‍💻 Tanguy Kwizera - Experiments
 
-| Experiment # | Hyperparameter Set | Noted Behavior |
-|--------------|-------------------|----------------|
-| 1 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Standard baseline for reference |
-| 2 | lr=7e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Fast learning initially but risk of divergence |
-| 3 | lr=1e-4, gamma=0.90, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Myopic behavior, focuses only on near-term rewards |
-| 4 | lr=1e-4, gamma=0.985, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Good balance between immediate and future rewards |
-| 5 | lr=1e-4, gamma=0.99, batch=24, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Small batch size leads to noisy but fast updates |
-| 6 | lr=1e-4, gamma=0.99, batch=80, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.1 | Large batch provides stability, slower iteration speed |
-| 7 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.08, exploration_fraction=0.1 | Higher final epsilon maintains some exploration |
-| 8 | lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, exploration_fraction=0.05 | Very quick transition to exploitation |
-| 9 | lr=1.5e-4, gamma=0.97, batch=56, epsilon_start=1.0, epsilon_end=0.015, exploration_fraction=0.18 | Custom balanced configuration with moderate values |
-| 10 | lr=8e-5, gamma=0.995, batch=72, epsilon_start=1.0, epsilon_end=0.02, exploration_fraction=0.2 | Conservative learning with long-term planning focus |
+| Experiment # | Hyperparameter Set | Description |
+|--------------|-------------------|--------------|
+| 1 | lr=1e-4, γ=0.99, batch=128, ε_start=1.0, ε_end=0.01, decay=0.1 | Test stability with very large batch size. |
+| 2 | lr=1e-4, γ=0.99, batch=8, ε_start=1.0, ε_end=0.01, decay=0.1 | Very small batch size for fast updates. |
+| 3 | lr=5e-4, γ=0.99, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Balance between learning rate and batch size. |
+| 4 | lr=1e-4, γ=0.99, batch=32, ε_start=1.0, ε_end=0.1, decay=0.25 | Explore for much longer before exploiting. |
+| 5 | lr=1e-4, γ=0.99, batch=32, ε_start=1.0, ε_end=0.01, decay=0.05 | Transition to exploitation early in training. |
+| 6 | lr=1e-3, γ=0.93, batch=64, ε_start=1.0, ε_end=0.01, decay=0.1 | Faster updates but shorter-term learning focus. |
+| 7 | lr=5e-5, γ=0.995, batch=32, ε_start=1.0, ε_end=0.01, decay=0.1 | Slow learning, emphasizes long-term planning. |
+| 8 | lr=1e-4, γ=0.99, batch=32, ε_start=1.0, ε_end=0.2, decay=0.3 | Keeps exploration high for much longer period. |
+| 9 | lr=7e-4, γ=0.97, batch=16, ε_start=1.0, ε_end=0.01, decay=0.1 | Fast updates with high variance gradients. |
+| 10 | lr=3e-4, γ=0.98, batch=32, ε_start=1.0, ε_end=0.02, decay=0.15 | Balanced parameters for comparison baseline. |
 
----
 
 ## 📊 Experiment Analysis Guidelines
 
