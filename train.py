@@ -493,7 +493,11 @@ if __name__ == "__main__":
         'exploration_fraction': args.epsilon_decay,
         'model_save_path': f'./models/dqn_{args.member_name.replace(" ", "_")}_exp{args.experiment_num}.zip',
         'best_model_path': f'./models/best_dqn_{args.member_name.replace(" ", "_")}_exp{args.experiment_num}.zip',
+        
+        'member_name': args.member_name,
+        'experiment_num': args.experiment_num,
     })
+
     
     # Main training with current configuration
     model, metrics = train_dqn_agent(CONFIG, args)
