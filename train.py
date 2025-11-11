@@ -1,6 +1,7 @@
 """
 Deep Q-Network (DQN) Training Script for Atari Games
 This script trains a DQN agent using Stable Baselines3 on a selected Atari environment.
+Enhanced with automatic experiment tracking and documentation.
 """
 
 import gymnasium as gym
@@ -8,12 +9,15 @@ import numpy as np
 from stable_baselines3 import DQN
 from stable_baselines3.common.env_util import make_atari_env
 from stable_baselines3.common.vec_env import VecFrameStack
-from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback, CallbackList
+from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback, CallbackList, BaseCallback
 from stable_baselines3.common.monitor import Monitor
 import matplotlib.pyplot as plt
 import os
 import json
+import csv
+import argparse
 from datetime import datetime
+from pathlib import Path
 
 # Configuration
 CONFIG = {
@@ -72,15 +76,90 @@ def create_training_environment(config):
     return env
 
 
-def setup_callbacks(config):
+class ExperimentLogger(BaseCallback):
+    """
+    Custom callback to log experiment metrics during training.
+    Automatically tracks rewards, episode lengths, and other metrics.
+    """
+    def __init__(self, verbose=0):
+        super().__init__(verbose)
+        self.episode_rewards = []
+        self.episode_lengths = []
+        self.best_mean_reward = -np.inf
+        
+    def _on_step(self) -> bool:
+        # Check if there are new episode results
+        if len(self.model.ep_info_buffer) > 0:
+            for info in self.model.ep_info_buffer:
+                if 'r' in info:
+                    self.episode_rewards.append(info['r'])
+                if 'l' in info:
+                    self.episode_lengths.append(info['l'])
+        return True
+    
+    def get_metrics(self):
+        """Return computed metrics from the training run"""
+        if len(self.episode_rewards) == 0:
+            return {}
+        
+        return {
+            'avg_reward': float(np.mean(self.episode_rewards[-100:])),  # Last 100 episodes
+            'peak_reward': float(np.max(self.episode_rewards)),
+            'min_reward': float(np.min(self.episode_rewards)),
+            'std_reward': float(np.std(self.episode_rewards[-100:])),
+            'avg_episode_length': float(np.mean(self.episode_lengths[-100:])),
+            'total_episodes': len(self.episode_rewards)
+        }
+
+
+def parse_arguments():
+    """Parse command line arguments for easy experiment configuration"""
+    parser = argparse.ArgumentParser(description='Train DQN agent on Atari games')
+    
+    # Experiment tracking
+    parser.add_argument('--member-name', type=str, default='Team Member',
+                      help='Your name for experiment tracking')
+    parser.add_argument('--experiment-num', type=int, default=1,
+                      help='Experiment number (1-10)')
+    
+    # Environment
+    parser.add_argument('--env', type=str, default='ALE/Breakout-v5',
+                      help='Atari environment name')
+    
+    # Hyperparameters
+    parser.add_argument('--lr', type=float, default=1e-4,
+                      help='Learning rate')
+    parser.add_argument('--gamma', type=float, default=0.99,
+                      help='Discount factor')
+    parser.add_argument('--batch-size', type=int, default=32,
+                      help='Batch size')
+    parser.add_argument('--epsilon-start', type=float, default=1.0,
+                      help='Initial exploration epsilon')
+    parser.add_argument('--epsilon-end', type=float, default=0.01,
+                      help='Final exploration epsilon')
+    parser.add_argument('--epsilon-decay', type=float, default=0.1,
+                      help='Exploration fraction (epsilon decay)')
+    
+    # Training
+    parser.add_argument('--timesteps', type=int, default=1_000_000,
+                      help='Total training timesteps')
+    parser.add_argument('--policy', type=str, default='CnnPolicy',
+                      choices=['CnnPolicy', 'MlpPolicy'],
+                      help='Policy network type')
+    
+    return parser.parse_args()
+
+
+def setup_callbacks(config, experiment_logger):
     """
     Setup training callbacks for logging and model checkpointing.
     
     Args:
         config: Configuration dictionary
+        experiment_logger: ExperimentLogger callback instance
     
     Returns:
-        CallbackList with evaluation and checkpoint callbacks
+        CallbackList with evaluation, checkpoint, and experiment logging callbacks
     """
     # Create log directory
     os.makedirs(config['log_dir'], exist_ok=True)
@@ -108,21 +187,88 @@ def setup_callbacks(config):
         name_prefix='dqn_checkpoint'
     )
     
-    return CallbackList([eval_callback, checkpoint_callback])
+    return CallbackList([eval_callback, checkpoint_callback, experiment_logger])
 
 
-def train_dqn_agent(config):
+def save_experiment_results(config, metrics, args):
+    """
+    Save experiment results to CSV for easy documentation and comparison.
+    
+    Args:
+        config: Training configuration
+        metrics: Training metrics from ExperimentLogger
+        args: Command line arguments with member name and experiment number
+    """
+    experiments_dir = Path('experiments')
+    experiments_dir.mkdir(exist_ok=True)
+    
+    csv_file = experiments_dir / 'experiment_results.csv'
+    
+    # Check if file exists to write header
+    file_exists = csv_file.exists()
+    
+    # Prepare experiment data
+    experiment_data = {
+        'member_name': args.member_name,
+        'experiment_num': args.experiment_num,
+        'date': datetime.now().strftime('%Y-%m-%d %H:%M'),
+        'env_name': config['env_name'],
+        'learning_rate': config['learning_rate'],
+        'gamma': config['gamma'],
+        'batch_size': config['batch_size'],
+        'epsilon_start': config['exploration_initial_eps'],
+        'epsilon_end': config['exploration_final_eps'],
+        'epsilon_decay': config['exploration_fraction'],
+        'avg_reward': metrics.get('avg_reward', 0),
+        'peak_reward': metrics.get('peak_reward', 0),
+        'std_reward': metrics.get('std_reward', 0),
+        'total_episodes': metrics.get('total_episodes', 0),
+        'total_timesteps': config['total_timesteps'],
+        'observations': ''  # To be filled in manually
+    }
+    
+    # Write to CSV
+    with open(csv_file, 'a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=experiment_data.keys())
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(experiment_data)
+    
+    print(f"\n✓ Experiment results saved to: {csv_file}")
+    
+    # Also save detailed JSON
+    json_file = experiments_dir / f"exp_{args.experiment_num}_{args.member_name.replace(' ', '_')}.json"
+    with open(json_file, 'w') as f:
+        json.dump({
+            'config': config,
+            'metrics': metrics,
+            'metadata': {
+                'member_name': args.member_name,
+                'experiment_num': args.experiment_num,
+                'date': datetime.now().isoformat()
+            }
+        }, f, indent=2)
+    
+    print(f"✓ Detailed results saved to: {json_file}")
+    
+    return experiment_data
+
+
+def train_dqn_agent(config, args=None):
     """
     Train a DQN agent with the specified configuration.
     
     Args:
         config: Configuration dictionary containing hyperparameters
+        args: Command line arguments (optional)
     
     Returns:
-        Trained DQN model
+        Trained DQN model and training metrics
     """
     print("="*60)
     print("TRAINING DQN AGENT")
+    if args:
+        print(f"Member: {args.member_name} | Experiment #{args.experiment_num}")
     print("="*60)
     print(f"Environment: {config['env_name']}")
     print(f"Policy: {config['policy_type']}")
@@ -138,8 +284,10 @@ def train_dqn_agent(config):
     # Create environment
     env = create_training_environment(config)
     
+    experiment_logger = ExperimentLogger(verbose=1)
+    
     # Setup callbacks
-    callbacks = setup_callbacks(config)
+    callbacks = setup_callbacks(config, experiment_logger)
     
     # Create DQN model
     model = DQN(
@@ -168,6 +316,8 @@ def train_dqn_agent(config):
         progress_bar=True
     )
     
+    metrics = experiment_logger.get_metrics()
+    
     # Save final model
     model.save(config['model_save_path'])
     print(f"\nModel saved to: {config['model_save_path']}")
@@ -178,7 +328,19 @@ def train_dqn_agent(config):
         json.dump(config, f, indent=4)
     print(f"Configuration saved to: {config_save_path}")
     
-    return model
+    if args:
+        experiment_data = save_experiment_results(config, metrics, args)
+        
+        # Display results summary
+        print("\n" + "="*60)
+        print("EXPERIMENT RESULTS SUMMARY")
+        print("="*60)
+        print(f"Average Reward (last 100 episodes): {metrics.get('avg_reward', 0):.2f}")
+        print(f"Peak Reward: {metrics.get('peak_reward', 0):.2f}")
+        print(f"Total Episodes: {metrics.get('total_episodes', 0)}")
+        print("="*60)
+    
+    return model, metrics
 
 
 def compare_policies(env_name, total_timesteps=500_000):
@@ -317,31 +479,30 @@ def hyperparameter_experiments():
 
 
 if __name__ == "__main__":
+    args = parse_arguments()
+    
+    CONFIG.update({
+        'env_name': args.env,
+        'total_timesteps': args.timesteps,
+        'policy_type': args.policy,
+        'learning_rate': args.lr,
+        'gamma': args.gamma,
+        'batch_size': args.batch_size,
+        'exploration_initial_eps': args.epsilon_start,
+        'exploration_final_eps': args.epsilon_end,
+        'exploration_fraction': args.epsilon_decay,
+        'model_save_path': f'./models/dqn_{args.member_name.replace(" ", "_")}_exp{args.experiment_num}.zip',
+        'best_model_path': f'./models/best_dqn_{args.member_name.replace(" ", "_")}_exp{args.experiment_num}.zip',
+    })
+    
     # Main training with current configuration
-    model = train_dqn_agent(CONFIG)
+    model, metrics = train_dqn_agent(CONFIG, args)
     
     # Display hyperparameter documentation table
     print("\n" + "="*80)
     print("HYPERPARAMETER DOCUMENTATION TABLE")
     print("="*80)
-    print("\nRecord your observations for each hyperparameter configuration:\n")
-    print("-" * 120)
-    print(f"{'Hyperparameter Set':<100} {'Noted Behavior':<20}")
-    print("-" * 120)
-    
-    hyperparameter_sets = [
-        "lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.1",
-        "lr=5e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.1",
-        "lr=1e-4, gamma=0.95, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.1",
-        "lr=1e-4, gamma=0.99, batch=64, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.1",
-        "lr=1e-4, gamma=0.99, batch=32, epsilon_start=1.0, epsilon_end=0.05, epsilon_decay=0.2",
-    ]
-    
-    for hp_set in hyperparameter_sets:
-        print(f"{hp_set:<100} {'[Record observations]':<20}")
-    
-    print("-" * 120)
-    print("\nTo view training progress, run: tensorboard --logdir=./logs/")
+    print("\nYour experiment has been logged! Add observations to experiments/experiment_results.csv\n")
     
     # Optional: Run hyperparameter experiments
     # Uncomment the line below to see all experiment configurations
@@ -356,8 +517,21 @@ if __name__ == "__main__":
     print("="*80)
     print(f"Final model saved at: {CONFIG['model_save_path']}")
     print(f"Best model saved at: {CONFIG['best_model_path']}")
+    print(f"\nExperiment results saved to: experiments/experiment_results.csv")
     print("\nNext steps:")
-    print("1. Run play.py to evaluate the trained agent")
-    print("2. View training logs with TensorBoard")
-    print("3. Experiment with different hyperparameters")
+    print("1. Open experiments/experiment_results.csv and add your observations")
+    print("2. Run play.py to evaluate the trained agent")
+    print("3. View training logs with TensorBoard: tensorboard --logdir=./logs/")
+    print("4. Run your next experiment with different hyperparameters")
+    print("\n" + "="*80)
+    print("EXAMPLE COMMANDS FOR YOUR NEXT EXPERIMENTS:")
+    print("="*80)
+    print("\nExperiment 2 - Higher learning rate:")
+    print(f"  python train.py --member-name \"{args.member_name}\" --experiment-num 2 --lr 5e-4")
+    print("\nExperiment 3 - Lower gamma:")
+    print(f"  python train.py --member-name \"{args.member_name}\" --experiment-num 3 --gamma 0.95")
+    print("\nExperiment 4 - Larger batch size:")
+    print(f"  python train.py --member-name \"{args.member_name}\" --experiment-num 4 --batch-size 64")
+    print("\nExperiment 5 - Extended exploration:")
+    print(f"  python train.py --member-name \"{args.member_name}\" --experiment-num 5 --epsilon-end 0.05 --epsilon-decay 0.2")
     print("="*80)
