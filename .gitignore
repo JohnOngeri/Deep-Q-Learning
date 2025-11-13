@@ -33,3 +33,4 @@ Thumbs.db
 # Data
 *.pkl
 *.h5
+.venv/
