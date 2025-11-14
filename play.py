@@ -3,14 +3,17 @@ DQN Agent Evaluation Script
 This script loads a trained DQN model and plays the Atari game with visualization.
 """
 
+import argparse
+from typing import List, Optional
 import gymnasium as gym
 import numpy as np
 from stable_baselines3 import DQN
 from stable_baselines3.common.env_util import make_atari_env
-from stable_baselines3.common.vec_env import VecFrameStack, DummyVecEnv
+from stable_baselines3.common.vec_env import VecFrameStack
 import time
 import json
 import os
+from pathlib import Path
 
 
 class GreedyQPolicy:
@@ -88,15 +91,12 @@ def create_evaluation_environment(env_name, render_mode='human'):
     Returns:
         Wrapped environment
     """
-    # Create single environment with rendering
-    def make_env():
-        env = gym.make(env_name, render_mode=render_mode)
-        return env
-    
-    # Wrap in DummyVecEnv for compatibility
-    env = DummyVecEnv([make_env])
-    
-    # Stack frames to match training
+    env = make_atari_env(
+        env_name,
+        n_envs=1,
+        seed=0,
+        env_kwargs={"render_mode": render_mode},
+    )
     env = VecFrameStack(env, n_stack=4)
     
     return env
@@ -195,7 +195,7 @@ def display_statistics(episode_rewards, episode_lengths):
     print("\n" + "="*60)
 
 
-def evaluate_model(model_path, n_episodes=5, render_delay=0.01):
+def evaluate_model(model_path, n_episodes=5, render_delay=0.01, env_override=None):
     """
     Complete evaluation pipeline: load model, play episodes, show statistics.
     
@@ -208,7 +208,7 @@ def evaluate_model(model_path, n_episodes=5, render_delay=0.01):
     model, config = load_model_and_config(model_path)
     
     # Get environment name
-    env_name = config.get('env_name', 'ALE/Breakout-v5')
+    env_name = env_override or config.get('env_name', 'ALE/Breakout-v5')
     
     # Create evaluation environment with rendering
     env = create_evaluation_environment(env_name, render_mode='human')
@@ -229,37 +229,92 @@ def evaluate_model(model_path, n_episodes=5, render_delay=0.01):
     print("\nEvaluation complete!")
 
 
+def resolve_model_path(explicit_path: Optional[str]) -> Optional[str]:
+    """
+    Determine which model file to load.
+
+    Preference order:
+      1. Explicit CLI argument
+      2. best_model.zip
+      3. Most recently modified DQN checkpoint in ./models
+    """
+    if explicit_path:
+        return explicit_path
+
+    models_dir = Path("./models")
+    if not models_dir.exists():
+        return None
+
+    candidates = [
+        models_dir / "best_model.zip",
+        models_dir / "dqn_model.zip",
+    ]
+
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+
+    # Fall back to latest zip file
+    zip_files = sorted(models_dir.glob("*.zip"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if zip_files:
+        return str(zip_files[0])
+
+    return None
+
+
+def list_available_models() -> List[str]:
+    models_dir = Path("./models")
+    if not models_dir.exists():
+        return []
+    return sorted(p.name for p in models_dir.glob("*.zip"))
+
+
 if __name__ == "__main__":
-    # Configuration
-    MODEL_PATH = './models/dqn_model.zip'  # Path to your trained model
-    N_EPISODES = 5  # Number of episodes to play
-    RENDER_DELAY = 0.01  # Delay between frames (adjust for speed)
-    
+    parser = argparse.ArgumentParser(description="Play an Atari game with a trained DQN model.")
+    parser.add_argument("--model-path", type=str, default=None, help="Path to a saved Stable-Baselines3 DQN zip file.")
+    parser.add_argument("--episodes", type=int, default=5, help="Number of episodes to play.")
+    parser.add_argument("--render-delay", type=float, default=0.01, help="Delay (seconds) between rendered frames.")
+    parser.add_argument("--env", type=str, default=None, help="Override environment name (otherwise taken from config).")
+    args = parser.parse_args()
+
+    resolved_model_path = resolve_model_path(args.model_path)
+
     print("""
     ╔══════════════════════════════════════════════════════════╗
     ║     DQN AGENT EVALUATION - ATARI GAME PLAYER            ║
     ╚══════════════════════════════════════════════════════════╝
     """)
-    
-    # Check if model exists
-    if not os.path.exists(MODEL_PATH):
-        print(f"❌ Error: Model not found at {MODEL_PATH}")
-        print("\nPlease train a model first by running train.py")
-        
-        # Try to find alternative models
-        models_dir = './models/'
-        if os.path.exists(models_dir):
-            model_files = [f for f in os.listdir(models_dir) if f.endswith('.zip')]
-            if model_files:
-                print(f"\nFound these models in {models_dir}:")
-                for i, model_file in enumerate(model_files, 1):
-                    print(f"  {i}. {model_file}")
-                print("\nUpdate MODEL_PATH in play.py to use one of these models.")
-    else:
-        # Run evaluation
-        evaluate_model(MODEL_PATH, n_episodes=N_EPISODES, render_delay=RENDER_DELAY)
-        
-        print("""
+
+    if resolved_model_path is None or not os.path.exists(resolved_model_path):
+        target_path = args.model_path or "./models/dqn_model.zip"
+        print(f"❌ Error: Model not found at {target_path}")
+        print("\nPlease train a model first by running train.py or specify --model-path.")
+
+        available = list_available_models()
+        if available:
+            print("\nFound these models in ./models/:")
+            for i, model_file in enumerate(available, 1):
+                print(f"  {i}. {model_file}")
+            print("\nRe-run play.py with --model-path pointing to one of these files.")
+        exit(1)
+
+    try:
+        evaluate_model(
+            resolved_model_path,
+            n_episodes=args.episodes,
+            render_delay=args.render_delay,
+            env_override=args.env,
+        )
+    except FileNotFoundError as exc:
+        print(f"❌ {exc}")
+        available = list_available_models()
+        if available:
+            print("\nFound these models in ./models/:")
+            for i, model_file in enumerate(available, 1):
+                print(f"  {i}. {model_file}")
+        exit(1)
+
+    print("""
     ╔══════════════════════════════════════════════════════════╗
     ║                    TIPS FOR EVALUATION                   ║
     ╠══════════════════════════════════════════════════════════╣

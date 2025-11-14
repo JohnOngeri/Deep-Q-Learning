@@ -18,6 +18,9 @@ import csv
 import argparse
 from datetime import datetime
 from pathlib import Path
+import gymnasium
+import ale_py
+
 
 # Configuration
 CONFIG = {
