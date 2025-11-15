@@ -1,0 +1,38 @@
+{
+  "config": {
+    "env_name": "ALE/Breakout-v5",
+    "total_timesteps": 500000,
+    "n_envs": 4,
+    "frame_stack": 4,
+    "policy_type": "CnnPolicy",
+    "learning_rate": 0.0001,
+    "gamma": 0.9,
+    "batch_size": 32,
+    "buffer_size": 100000,
+    "learning_starts": 50000,
+    "target_update_interval": 1000,
+    "train_freq": 4,
+    "gradient_steps": 1,
+    "exploration_fraction": 0.1,
+    "exploration_initial_eps": 1.0,
+    "exploration_final_eps": 0.01,
+    "log_dir": "./logs/",
+    "model_save_path": "./models/dqn_Jeremiah_Agbaje_exp1.zip",
+    "best_model_path": "./models/best_dqn_Jeremiah_Agbaje_exp1.zip",
+    "member_name": "Jeremiah Agbaje",
+    "experiment_num": 1
+  },
+  "metrics": {
+    "avg_reward": 11.82,
+    "peak_reward": 30.0,
+    "min_reward": 0.0,
+    "std_reward": 5.439448501456742,
+    "avg_episode_length": 543.0,
+    "total_episodes": 12448379
+  },
+  "metadata": {
+    "member_name": "Jeremiah Agbaje",
+    "experiment_num": 1,
+    "date": "2025-11-14T04:49:21.227418"
+  }
+}
