@@ -5,6 +5,8 @@ Enhanced with automatic experiment tracking and documentation.
 """
 
 import gymnasium as gym
+# Ensure ALE (Atari) environments are registered by importing ale_py early
+import ale_py
 import numpy as np
 from stable_baselines3 import DQN
 from stable_baselines3.common.env_util import make_atari_env

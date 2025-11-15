@@ -1,6 +1,15 @@
-gymnasium[atari]>=0.29.0
-stable-baselines3[extra]>=2.0.0
-ale-py>=0.8.0
-tensorboard>=2.14.0
-matplotlib>=3.7.0
-numpy>=1.24.0
+# Core RL libraries - pinned versions tested to work together
+gymnasium==1.0.0
+gymnasium[atari]==1.0.0
+ale-py==0.9.0
+stable-baselines3[extra]==2.4.1
+
+# Supporting libraries
+torch==2.2.2
+tensorboard==2.16.2
+matplotlib==3.10.5
+numpy==1.26.4
+pandas==2.2.2
+
+# Optional but recommended
+autorom==0.6.1
