@@ -75,42 +75,6 @@ python play.py
 
 The agent will use a **GreedyQPolicy** (no exploration, only exploitation) to maximize performance.
 
-## Understanding DQN Components
-
-### Q-Learning Basics
-
-**Q-Value**: Expected cumulative reward for taking action `a` in state `s`
-
-Formula: `Q(s,a) = r + γ * max(Q(s',a'))`
-
-Where:
-- `r`: immediate reward
-- `γ` (gamma): discount factor (how much we value future rewards)
-- `s'`: next state
-
-### Deep Q-Network
-
-Instead of storing Q-values in a table, DQN uses a neural network to approximate Q-values:
-- **Input**: Game frames (stacked for temporal information)
-- **Output**: Q-values for each possible action
-- **Training**: Minimize difference between predicted and target Q-values
-
-### Key DQN Features
-
-**Experience Replay**:
-- Stores experiences `(s, a, r, s')` in a replay buffer
-- Samples random mini-batches for training
-- Breaks correlation between consecutive experiences
-
-**Target Network**:
-- Separate network for computing target Q-values
-- Updated periodically to stabilize training
-- Prevents moving target problem
-
-**Epsilon-Greedy Exploration**:
-- With probability `ε`: take random action (explore)
-- With probability `1-ε`: take best action (exploit)
-- `ε` decays from `epsilon_start` to `epsilon_end` over `exploration_fraction` of training
 
 ## Hyperparameter Experiment Design
 
@@ -152,7 +116,7 @@ All experiments automatically logged training results, episode rewards, and conf
 | Exp# | Hyperparameter Set | Noted Behavior |
 |------|-------------------|----------------|
 | 1 | lr=1.00e-04, gamma=0.900, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.10 | Avg reward: 14.39, Peak: 26.00 (Run 1). Low gamma emphasized short-term rewards, effective for Breakout's immediate feedback. |
-| 1 | lr=1.00e-04, gamma=0.900, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.10 | Avg reward: 11.82, Peak: 30.00 (Run 2). Second run showed variability, confirming stochastic nature of training. |
+| 1 | lr=1.00e-04, gamma=0.900, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.10 | Avg reward: 11.82, Peak: 30.00 (Run 2). Second run showed variability, confirming the stochastic nature of training. |
 | 2 | lr=1.00e-04, gamma=0.999, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.10 | Avg reward: 13.07, Peak: 28.00. Extremely high gamma created instability, overemphasizing long-term planning. |
 | 3 | lr=1.00e-04, gamma=0.970, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.10 | Avg reward: 12.31, Peak: 35.00. Balanced gamma achieved moderate performance with occasional high peaks. |
 | 4 | lr=1.00e-05, gamma=0.970, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.10 | Avg reward: 6.65, Peak: 16.00. Very low learning rate resulted in minimal learning progress within training time. |
@@ -167,14 +131,14 @@ All experiments automatically logged training results, episode rewards, and conf
 
 ### Tanguy Kwizera - Experiments
 
-**Focus**: Examining batch size effects and interaction between exploration and learning rate
+**Focus**: Examining batch size effects and the interaction between exploration and learning rate
 
 | Exp# | Hyperparameter Set | Noted Behavior |
 |------|-------------------|----------------|
 | 1 | lr=1.00e-04, gamma=0.990, batch=128, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.10 | Avg reward: 1.94, Peak: 8.00. Very large batch size with limited timesteps (50K) prevented adequate learning. |
 | 2 | lr=1.00e-04, gamma=0.990, batch=8, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.10 | Avg reward: 5.22, Peak: 12.00. Extremely small batch created high variance, unstable training dynamics. |
 | 3 | lr=5.00e-04, gamma=0.990, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.10 | Avg reward: 9.90, Peak: 18.00. Increased learning rate improved performance even with shorter training duration. |
-| 4 | lr=1.00e-04, gamma=0.990, batch=32, epsilon_start=1.0, epsilon_end=0.10, epsilon_decay=0.25 | Avg reward: 6.77, Peak: 12.00 (Run 1). Extended exploration with higher epsilon_end reduced exploitation effectiveness. |
+| 4 | lr=1.00e-04, gamma=0.990, batch=32, epsilon_start=1.0, epsilon_end=0.10, epsilon_decay=0.25 | Avg reward: 6.77, Peak: 12.00 (Run 1). Extended exploration with a higher epsilon_end reduced exploitation effectiveness. |
 | 4 | lr=1.00e-04, gamma=0.990, batch=32, epsilon_start=1.0, epsilon_end=0.10, epsilon_decay=0.25 | Avg reward: 5.08, Peak: 13.00 (Run 2). Repeated run confirmed suboptimal performance from prolonged exploration. |
 | 5 | lr=1.00e-04, gamma=0.990, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.05 | Avg reward: 6.37, Peak: 14.00 (Run 1). Fast exploration decay with limited timesteps showed modest learning. |
 | 5 | lr=1.00e-04, gamma=0.990, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.05 | Avg reward: 6.51, Peak: 11.00 (Run 2). Consistency across runs confirmed parameter stability. |
@@ -182,7 +146,7 @@ All experiments automatically logged training results, episode rewards, and conf
 | 7 | lr=5.00e-05, gamma=0.995, batch=32, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.10 | Avg reward: 3.85, Peak: 11.00. Very conservative learning rate insufficient for short training duration. |
 | 8 | lr=1.00e-04, gamma=0.990, batch=32, epsilon_start=1.0, epsilon_end=0.20, epsilon_decay=0.30 | Avg reward: 4.52, Peak: 13.00. Maintaining high exploration too long severely limited learning progress. |
 | 9 | lr=7.00e-04, gamma=0.970, batch=16, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.10 | Avg reward: 6.65, Peak: 16.00. Higher learning rate with small batch created volatile but improved learning. |
-| 10 | lr=3.00e-04, gamma=0.980, batch=32, epsilon_start=1.0, epsilon_end=0.02, epsilon_decay=0.15 | Avg reward: 9.83, Peak: 22.00. Balanced moderate parameters provided reliable performance baseline. |
+| 10 | lr=3.00e-04, gamma=0.980, batch=32, epsilon_start=1.0, epsilon_end=0.02, epsilon_decay=0.15 | Avg reward: 9.83, Peak: 22.00. Balanced moderate parameters provided a reliable performance baseline. |
 
 **Best Configuration**: Experiment 6 (lr=1.00e-03, gamma=0.930, batch=64)
 
@@ -204,7 +168,7 @@ Based on the experimental results across all team members:
 
 3. **Jeremiah Agbaje - Experiment 10**: Average Reward 18.36, Peak 43.00
    - Configuration: lr=3.00e-04, gamma=0.980, batch=32
-   - Strong balanced configuration
+   - Strong, balanced configuration
 
 ### Hyperparameter Impact Analysis
 
@@ -214,24 +178,24 @@ Based on the experimental results across all team members:
 - Clear positive correlation between learning rate and performance
 - Best results achieved with lr=1.00e-03 and lr=7.00e-04
 - Learning rates below 1.00e-04 showed insufficient learning within training time
-- Very high learning rates (>1.00e-03) risk instability but can work with proper batch size
+- Very high learning rates (>1.00e-03) risk instability, but can work with proper batch size
 
 **Gamma (Discount Factor) Effects**:
 - Negative correlation observed: lower gamma values performed better
 - Optimal range: 0.93-0.97 for Breakout
 - Gamma values above 0.99 hindered learning by overemphasizing distant rewards
-- Lower gamma (0.90-0.95) more suitable for games with immediate feedback like Breakout
+- Lower gamma (0.90-0.95) is more suitable for games with immediate feedback, like Breakout
 
 **Batch Size Trade-offs**:
-- Moderate batch sizes (32-64) achieved best results
+- Moderate batch sizes (32-64) achieved the best results
 - Very small batches (8-16) created high variance and instability
 - Very large batches (128) slowed learning, especially with limited timesteps
-- Batch size of 64 optimal when combined with higher learning rates
+- Batch size of 64 is optimal when combined with higher learning rates
 
 **Exploration Strategy**:
 - Standard decay parameters (epsilon_end=0.01, decay=0.10) worked well
 - Prolonged exploration (epsilon_end=0.10-0.20, decay=0.25-0.30) reduced performance
-- Rapid decay (decay=0.05) effective when combined with adequate training time
+- Rapid decay (decay=0.05) is effective when combined with adequate training time
 - Sweet spot: epsilon_end between 0.01-0.02, decay between 0.10-0.15
 
 ### Team Member Comparison
@@ -270,25 +234,25 @@ Performance Rankings:
 
 **John Ouma**:
 - Responsibilities: Initial project setup, training script development, baseline experiments establishment
-- Key Contributions: Developed train.py with configurable hyperparameters, implemented automated logging system, conducted 10 comprehensive experiments focusing on learning rate and exploration strategies
-- Experiments Conducted: 10 configurations with 500K timesteps each, achieved best overall performance
+- Key Contributions: Developed train.py with configurable hyperparameters, implemented an automated logging system, and conducted 10 comprehensive experiments focusing on learning rate and exploration strategies
+- Experiments Conducted: 10 configurations with 500K timesteps each, achieved the best overall performance
 
 **Jeremiah Agbaje**:
-- Responsibilities: Evaluation script development, gamma parameter analysis, visualization system
-- Key Contributions: Created play.py with GreedyQPolicy implementation, focused on discount factor investigation, provided second-best experimental results
+- Responsibilities: Evaluation script development, gamma parameter analysis, and visualization system
+- Key Contributions: Created play.py with GreedyQPolicy implementation, focused on discount factor investigation, and provided second-best experimental results
 - Experiments Conducted: 10 configurations with 500K timesteps each, specialized in gamma variation studies
 
 **Tanguy Kwizera**:
-- Responsibilities: Documentation, batch size analysis, data aggregation and visualization
-- Key Contributions: Developed comprehensive README structure, created experiment tracking CSV system, implemented analysis plotting scripts, investigated batch size effects
+- Responsibilities: Documentation, batch size analysis, data aggregation, and visualization
+- Key Contributions: Developed a comprehensive README structure, created an experiment tracking CSV system, implemented analysis plotting scripts, and investigated batch size effects
 - Experiments Conducted: 10 configurations exploring batch size variations and training duration impacts
 
 ### Collaboration Process
 
 **Meetings**:
-- Week 1: Initial project planning and task division
-- Week 2: Midpoint review of experimental results and parameter adjustment strategies
-- Week 3: Data aggregation, analysis, and documentation finalization
+- Meeting 1: Initial project planning and task division
+- Meeting 2: Midpoint review of experimental results and parameter adjustment strategies
+- Meeting 3: Data aggregation, analysis, and documentation finalization
 
 **Division of Work**:
 - Experimental design was coordinated to ensure comprehensive hyperparameter coverage
@@ -296,95 +260,16 @@ Performance Rankings:
 - Results were aggregated into a shared CSV file for collective analysis
 - Documentation and visualization tasks were distributed based on expertise
 
-**Challenges and Solutions**:
-- **Challenge**: Initial experiments showed high variance in results
-  - **Solution**: Implemented consistent random seeding and increased episode counts for better averaging
-
-- **Challenge**: Training time exceeded expectations
-  - **Solution**: Optimized code, utilized available GPU resources, and staggered experiment schedules
-
-- **Challenge**: Determining optimal hyperparameter ranges
-  - **Solution**: Started with literature-recommended values, then iteratively adjusted based on preliminary results
-
-- **Challenge**: Integrating different training durations in analysis
-  - **Solution**: Documented timestep differences clearly and analyzed results within context of training duration
-
-### Group Insights
-
-1. **Systematic Experimentation**: The structured approach of each member exploring different hyperparameter aspects provided comprehensive coverage and valuable comparative insights.
-
-2. **Importance of Consistency**: Maintaining consistent experimental protocols (same environment, evaluation methods, logging format) was crucial for meaningful comparisons.
-
-3. **Collaborative Learning**: Regular discussions about intermediate results helped identify promising hyperparameter ranges and avoid redundant experiments.
-
-4. **Documentation Value**: Maintaining detailed records of each experiment enabled retrospective analysis and identification of non-obvious patterns.
-
-5. **Reproducibility**: Using version control, consistent seeding, and detailed logging ensured experiments could be validated and reproduced.
-
-## Monitoring Training
-
-### TensorBoard
-
-View training progress in real-time:
-
-```bash
-tensorboard --logdir=./logs/
-```
-
-Open browser at `http://localhost:6006` to monitor:
-- Episode reward trends over time
-- Episode length evolution
-- Training loss curves
-- Exploration rate (epsilon) decay
-
 ### Key Metrics
 
 - **Episode Reward**: Total reward per episode (should increase over training)
 - **Episode Length**: Steps per episode (indicates agent survival time)
 - **Training Loss**: Should decrease and stabilize
-- **Epsilon**: Should decay from 1.0 to configured final value
-
-## Expected Performance
-
-Training times and performance vary by configuration and hardware:
-
-| Configuration | Average Reward | Training Time (GPU) | Training Time (CPU) |
-|--------------|----------------|---------------------|---------------------|
-| Conservative (lr=1e-4, gamma=0.99) | 10-14 | 2-3 hours | 6-9 hours |
-| Moderate (lr=5e-4, gamma=0.97) | 15-20 | 2-3 hours | 6-9 hours |
-| Aggressive (lr=1e-3, gamma=0.95) | 22-25 | 2-3 hours | 6-9 hours |
-
-**Note**: Performance metrics based on 500K timesteps training on ALE/Breakout-v5
-
-## Troubleshooting
-
-### Agent Not Learning
-- Increase total_timesteps (minimum 500K recommended)
-- Verify learning_rate is not too low (try 3e-4 to 1e-3)
-- Check that learning_starts is appropriate (default 50K works well)
-- Ensure gamma is not too high (try 0.95-0.97 for Breakout)
-
-### Training Unstable
-- Decrease learning_rate to 1e-4 or lower
-- Increase batch_size to 64 or 128
-- Increase target_update_interval
-- Reduce learning_rate if using values above 1e-3
-
-### Agent Too Random
-- Verify epsilon has decayed (check TensorBoard)
-- Ensure using trained model for evaluation, not training mode
-- Confirm deterministic=True in evaluation script
-- Check that epsilon_end is low enough (0.01-0.02)
-
-### Poor Performance Despite Long Training
-- Learning rate may be too low - increase to 5e-4 or higher
-- Gamma may be too high - try reducing to 0.93-0.97
-- Batch size may be suboptimal - experiment with 32 or 64
-- Verify environment is rendering correctly and agent can see game state
+- **Epsilon**: Should decay from 1.0 to the configured final value
 
 ## Policy Comparison: CNN vs MLP
 
-### CNN Policy (Recommended for Atari)
+### CNN Policy 
 - **Architecture**: Convolutional layers followed by fully connected layers
 - **Input**: Raw pixels (84x84x4 stacked frames)
 - **Advantages**: 
@@ -392,7 +277,7 @@ Training times and performance vary by configuration and hardware:
   - Handles high-dimensional visual input efficiently
   - Captures temporal information through frame stacking
 - **Performance**: Excellent on Atari games
-- **Use Case**: All visual-based games including Breakout, Pong, Space Invaders
+- **Use Case**: All visual-based games, including Breakout, Pong, Space Invaders
 
 ### MLP Policy
 - **Architecture**: Fully connected layers only
@@ -401,70 +286,10 @@ Training times and performance vary by configuration and hardware:
   - Cannot learn spatial relationships effectively
   - Struggles with high-dimensional input
   - Requires manual feature engineering
-- **Performance**: Poor on Atari (not recommended)
+- **Performance**: Poor on Atari 
 - **Use Case**: Low-dimensional state spaces (e.g., CartPole, MountainCar)
 
 **Conclusion**: Always use CnnPolicy for Atari environments.
-
-## Additional Resources
-
-- [Stable Baselines3 Documentation](https://stable-baselines3.readthedocs.io/)
-- [Gymnasium Atari Environments](https://gymnasium.farama.org/environments/atari/)
-- [DQN Paper - Nature](https://www.nature.com/articles/nature14236)
-- [TensorBoard Tutorial](https://www.tensorflow.org/tensorboard)
-- [Deep RL Course - Hugging Face](https://huggingface.co/learn/deep-rl-course)
-
-## Learning Objectives
-
-After completing this project, the following concepts are understood:
-
-1. **Q-Learning Fundamentals**: How Q-learning works and why neural networks are used to approximate Q-values for complex state spaces
-
-2. **Exploration-Exploitation Tradeoff**: The critical balance between exploring new actions and exploiting learned knowledge, managed through epsilon-greedy policies
-
-3. **Experience Replay and Target Networks**: Why these techniques are essential for stable DQN training and how they prevent catastrophic forgetting
-
-4. **Hyperparameter Impact**: How different hyperparameters affect learning dynamics:
-   - Learning rate controls convergence speed and stability
-   - Gamma determines short-term vs long-term reward focus
-   - Batch size affects gradient variance and computational efficiency
-   - Exploration parameters control the exploration-exploitation timeline
-
-5. **Training vs Evaluation**: The distinction between training mode (with exploration) and evaluation mode (pure exploitation with GreedyQPolicy)
-
-6. **Game-Specific Optimization**: Understanding that optimal hyperparameters are task-dependent and require empirical validation
-
-## Quick Start Guide
-
-1. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. **Run training** (this will take 2-3 hours on GPU):
-   ```bash
-   python train.py
-   ```
-
-3. **Watch trained agent play**:
-   ```bash
-   python play.py
-   ```
-
-4. **View training graphs**:
-   ```bash
-   tensorboard --logdir=./logs/
-   ```
-
-5. **Experiment with hyperparameters**:
-   - Edit CONFIG dictionary in train.py
-   - Focus on learning_rate, gamma, and batch_size for biggest impact
-   - Use findings from this study as starting point
-
-6. **Analyze results**:
-   - Check experiments/experiment_results.csv for detailed logs
-   - View experiments/hyperparameter_impacts.png for visualizations
-   - Compare against team member results in experiments/member_comparison.png
 
 ## Conclusion
 
