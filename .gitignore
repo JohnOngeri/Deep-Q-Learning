@@ -1,6 +1,11 @@
-# Models
-models/
+# Models - ignore all files in models directory
+models/*
+# Exception: allow best_model.zip to be tracked
+!models/best_model.zip
+!models/best_model_config.json
+# Ignore all zip files except best_model.zip
 *.zip
+!models/best_model.zip
 
 # Logs
 logs/
