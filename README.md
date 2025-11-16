@@ -2,6 +2,9 @@
 
 This project implements a Deep Q-Network agent using Stable Baselines3 and Gymnasium to play Atari games.
 
+
+<img width="1328" height="620" alt="image" src="https://github.com/user-attachments/assets/4cbb3e58-c72a-4aa9-8f38-09a7abe12d6b" />
+
 ```bash
 Deep-Q-Learning/
 │
