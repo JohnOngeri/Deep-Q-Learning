@@ -12,24 +12,6 @@ This project implements a Deep Q-Network agent using Stable Baselines3 and Gymna
 
 https://github.com/user-attachments/assets/12b0da3a-ee94-4528-ab1c-84a3eda1df63
 
-## Project Structure
-
-```
-Deep-Q-Learning/
-│
-├── .gitignore                          # Ignore cache, model, and temp files
-├── README.md                           # Project documentation and results
-├── requirements.txt                    # Dependencies for Python environment
-├── train.py                            # Script to train the DQN agent
-├── play.py                             # Script to load and evaluate trained agent
-├── dqn_model.zip                       # Saved trained model (generated after training)
-│
-└── experiments/
-    ├── experiment_results.csv          # All experiment data
-    ├── hyperparameter_impacts.png      # Hyperparameter analysis visualizations
-    └── member_comparison.png           # Team member performance comparison
-```
-
 ## Installation
 
 Install the required dependencies:
