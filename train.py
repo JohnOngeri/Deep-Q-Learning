@@ -20,15 +20,15 @@ import csv
 import argparse
 from datetime import datetime
 from pathlib import Path
-import gymnasium
-import ale_py
+
+
 
 
 # Configuration
 CONFIG = {
     # Environment settings
-    'env_name': 'ALE/Breakout-v5',  # Change to any Atari environment you prefer
-    # Other popular options: 'ALE/Pong-v5', 'ALE/SpaceInvaders-v5', 'ALE/MsPacman-v5'
+    'env_name': 'ALE/Breakout-v5', 
+
     
     # Training settings
     'total_timesteps': 1_000_000,  # Total training steps
@@ -36,7 +36,7 @@ CONFIG = {
     'frame_stack': 4,  # Number of frames to stack
     
     # Model settings
-    'policy_type': 'CnnPolicy',  # 'CnnPolicy' or 'MlpPolicy'
+    'policy_type': 'CnnPolicy',  # 'CnnPolicy'
     
     # DQN Hyperparameters - Experiment with these!
     'learning_rate': 1e-4,

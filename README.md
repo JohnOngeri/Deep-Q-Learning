@@ -345,4 +345,3 @@ After completing this assignment, you should understand:
 6. **Document your observations** in the hyperparameter table above
 7. **Complete all 10 experiments per team member** (30 total)
 
-Good luck with your DQN training! 🚀🎮
