@@ -6,6 +6,13 @@ This project implements a Deep Q-Network agent using Stable Baselines3 and Gymna
 <img width="1359" height="723" alt="image" src="https://github.com/user-attachments/assets/7b15004e-a07f-4664-879d-9f2d3ba642f7" />
 
 
+
+https://github.com/user-attachments/assets/12b0da3a-ee94-4528-ab1c-84a3eda1df63
+
+
+
+
+
 ```bash
 Deep-Q-Learning/
 │
