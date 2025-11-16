@@ -1,0 +1,38 @@
+{
+  "config": {
+    "env_name": "ALE/Breakout-v5",
+    "total_timesteps": 100000,
+    "n_envs": 4,
+    "frame_stack": 4,
+    "policy_type": "CnnPolicy",
+    "learning_rate": 0.0007,
+    "gamma": 0.97,
+    "batch_size": 16,
+    "buffer_size": 100000,
+    "learning_starts": 50000,
+    "target_update_interval": 1000,
+    "train_freq": 4,
+    "gradient_steps": 1,
+    "exploration_fraction": 0.1,
+    "exploration_initial_eps": 1.0,
+    "exploration_final_eps": 0.01,
+    "log_dir": "./logs/",
+    "model_save_path": "./models/dqn_Tanguy_Kwizera_exp9.zip",
+    "best_model_path": "./models/best_dqn_Tanguy_Kwizera_exp9.zip",
+    "member_name": "Tanguy Kwizera",
+    "experiment_num": 9
+  },
+  "metrics": {
+    "avg_reward": 6.65,
+    "peak_reward": 16.0,
+    "min_reward": 0.0,
+    "std_reward": 2.535251466817444,
+    "avg_episode_length": 401.66,
+    "total_episodes": 2448379
+  },
+  "metadata": {
+    "member_name": "Tanguy Kwizera",
+    "experiment_num": 9,
+    "date": "2025-11-12T20:45:23.462677"
+  }
+}
