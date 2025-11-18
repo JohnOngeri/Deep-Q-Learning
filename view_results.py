@@ -18,7 +18,7 @@ def load_results(csv_file='experiments/experiment_results.csv'):
         return None
     
     df = pd.read_csv(csv_file)
-    print(f"✓ Loaded {len(df)} experiments")
+    print(f"Loaded {len(df)} experiments")
     return df
 
 
@@ -50,7 +50,7 @@ def print_summary_table(df, member_name=None):
     
     # Best experiment
     best = df_sorted.iloc[0]
-    print(f"🏆 BEST PERFORMING EXPERIMENT:")
+    print(f"BEST PERFORMING EXPERIMENT:")
     print(f"   Member: {best['member_name']}")
     print(f"   Experiment #{best['experiment_num']}")
     print(f"   Average Reward: {best['avg_reward']:.2f}")
@@ -89,7 +89,7 @@ def plot_hyperparameter_impacts(df):
     
     plt.tight_layout()
     plt.savefig('experiments/hyperparameter_impacts.png', dpi=300)
-    print("\n✓ Hyperparameter impact plots saved to: experiments/hyperparameter_impacts.png")
+    print("\nHyperparameter impact plots saved to: experiments/hyperparameter_impacts.png")
     plt.close()
 
 
@@ -106,7 +106,7 @@ def plot_member_comparison(df):
     plt.grid(axis='y', alpha=0.3)
     plt.tight_layout()
     plt.savefig('experiments/member_comparison.png', dpi=300)
-    print("✓ Member comparison plot saved to: experiments/member_comparison.png")
+    print("Member comparison plot saved to: experiments/member_comparison.png")
     plt.close()
 
 

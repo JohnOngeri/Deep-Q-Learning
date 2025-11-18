@@ -239,7 +239,7 @@ def save_experiment_results(config, metrics, args):
             writer.writeheader()
         writer.writerow(experiment_data)
     
-    print(f"\n✓ Experiment results saved to: {csv_file}")
+    print(f"\nExperiment results saved to: {csv_file}")
     
     # Also save detailed JSON
     json_file = experiments_dir / f"exp_{args.experiment_num}_{args.member_name.replace(' ', '_')}.json"
@@ -254,7 +254,7 @@ def save_experiment_results(config, metrics, args):
             }
         }, f, indent=2)
     
-    print(f"✓ Detailed results saved to: {json_file}")
+    print(f"Detailed results saved to: {json_file}")
     
     return experiment_data
 

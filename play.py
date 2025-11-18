@@ -1,6 +1,7 @@
 """
 DQN Agent Evaluation Script
 This script loads a trained DQN model and plays the Atari game with visualization.
+
 """
 
 import argparse
@@ -27,13 +28,8 @@ class GreedyQPolicy:
     def predict(self, observation, deterministic=True):
         """
         Select action with highest Q-value.
-        
-        Args:
-            observation: Current state
-            deterministic: Always True for greedy policy
-        
-        Returns:
-            action: Best action according to Q-values
+        observation: Current state, deterministic: Always True for greedy policy
+        return Best action according to Q-values
         """
         return self.model.predict(observation, deterministic=True)
 
@@ -41,13 +37,8 @@ class GreedyQPolicy:
 def load_model_and_config(model_path):
     """
     Load the trained DQN model and its configuration.
-    
-    Args:
-        model_path: Path to the saved model
-    
-    Returns:
-        model: Loaded DQN model
-        config: Configuration dictionary
+    model_path: Path to the saved model
+    return loaded DQN model and configuration dictionary
     """
     print("="*60)
     print("LOADING TRAINED MODEL")
@@ -58,7 +49,7 @@ def load_model_and_config(model_path):
         raise FileNotFoundError(f"Model not found at: {model_path}")
     
     model = DQN.load(model_path)
-    print(f"✓ Model loaded from: {model_path}")
+    print(f"Model loaded from: {model_path}")
     
     # Try to load configuration
     config_path = model_path.replace('.zip', '_config.json')
@@ -67,13 +58,13 @@ def load_model_and_config(model_path):
     if os.path.exists(config_path):
         with open(config_path, 'r') as f:
             config = json.load(f)
-        print(f"✓ Configuration loaded from: {config_path}")
+        print(f"Configuration loaded from: {config_path}")
         print(f"\nModel Details:")
         print(f"  Environment: {config.get('env_name', 'Unknown')}")
         print(f"  Policy: {config.get('policy_type', 'Unknown')}")
         print(f"  Training Steps: {config.get('total_timesteps', 'Unknown'):,}")
     else:
-        print("⚠ Configuration file not found. Using default environment.")
+        print("Configuration file not found. Using default environment.")
     
     print("="*60)
     
@@ -83,13 +74,8 @@ def load_model_and_config(model_path):
 def create_evaluation_environment(env_name, render_mode='human'):
     """
     Create an environment for evaluation with rendering enabled.
-    
-    Args:
-        env_name: Name of the Atari environment
-        render_mode: Rendering mode ('human' for GUI display)
-    
-    Returns:
-        Wrapped environment
+    render_mode: Rendering mode ('human' for GUI display)
+    return wrapped environment
     """
     env = make_atari_env(
         env_name,
@@ -279,15 +265,11 @@ if __name__ == "__main__":
 
     resolved_model_path = resolve_model_path(args.model_path)
 
-    print("""
-    ╔══════════════════════════════════════════════════════════╗
-    ║     DQN AGENT EVALUATION - ATARI GAME PLAYER            ║
-    ╚══════════════════════════════════════════════════════════╝
-    """)
+    print("===== DQN AGENT EVALUATION - ATARI GAME PLAYER =====")
 
     if resolved_model_path is None or not os.path.exists(resolved_model_path):
         target_path = args.model_path or "./models/dqn_model.zip"
-        print(f"❌ Error: Model not found at {target_path}")
+        print(f"Error: Model not found at {target_path}")
         print("\nPlease train a model first by running train.py or specify --model-path.")
 
         available = list_available_models()
@@ -306,21 +288,10 @@ if __name__ == "__main__":
             env_override=args.env,
         )
     except FileNotFoundError as exc:
-        print(f"❌ {exc}")
+        print(f"{exc}")
         available = list_available_models()
         if available:
             print("\nFound these models in ./models/:")
             for i, model_file in enumerate(available, 1):
                 print(f"  {i}. {model_file}")
         exit(1)
-
-    print("""
-    ╔══════════════════════════════════════════════════════════╗
-    ║                    TIPS FOR EVALUATION                   ║
-    ╠══════════════════════════════════════════════════════════╣
-    ║ • Greedy Policy: Agent always picks best action         ║
-    ║ • No exploration during evaluation                       ║
-    ║ • Adjust RENDER_DELAY to control playback speed         ║
-    ║ • Try evaluating the best_model.zip for best results    ║
-    ╚══════════════════════════════════════════════════════════╝
-        """)
